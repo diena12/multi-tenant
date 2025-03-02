@@ -1,0 +1,43 @@
+services:
+  backend:
+    build: ./backend
+    container_name: multi-tenant-backend
+    ports:
+      - "4000:4000"
+      - "5555:5555"
+    env_file:
+      - ./backend/.env 
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://postgres:ikh07fs48fgl@multi-tenant-db:5432/multi-tenant"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: multi-tenant-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  db:
+    image: postgres:15
+    restart: always
+    container_name: multi-tenant-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ikh07fs48fgl
+      POSTGRES_DB: multi-tenant
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
