@@ -1,12 +1,14 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     container_name: multi-tenant-backend
     ports:
       - "4000:4000"
       - "5555:5555"
     env_file:
-      - ./backend/.env 
+      - ./backend/.env
     depends_on:
       - db
     environment:
@@ -16,7 +18,9 @@ services:
       - /app/node_modules
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     container_name: multi-tenant-frontend
     ports:
       - "3000:3000"
@@ -31,7 +35,7 @@ services:
     restart: always
     container_name: multi-tenant-db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ikh07fs48fgl
