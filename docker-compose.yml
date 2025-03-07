@@ -3,7 +3,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: multi-tenant-backend
+    container_name: backend
     ports:
       - "4000:4000"
       - "5555:5555"
@@ -15,20 +15,18 @@ services:
       DATABASE_URL: "postgresql://postgres:ikh07fs48fgl@multi-tenant-db:5432/multi-tenant"
     volumes:
       - ./backend:/app
-      - /app/node_modules
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    container_name: multi-tenant-frontend
+    container_name: frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
     volumes:
       - ./frontend:/app
-      - /app/node_modules
 
   db:
     image: postgres:15

@@ -1,5 +1,5 @@
 # 1. ベースイメージ
-FROM node:20.9.0-alpine
+FROM node:20.14.0-alpine
 
 # 2. 作業ディレクトリを作成
 WORKDIR /app
@@ -8,10 +8,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # 4. 依存関係をインストール（開発用）
-RUN npm install
+RUN npm install --frozen-lockfile
 
 # 5. 残りのアプリのソースコードをコピー
 COPY . .
 
+EXPOSE 4000
+
 # 6. ホットリロード用のコマンド
-CMD ["npm", "run", "start:dev"]
+CMD ["sh", "-c", "trap 'kill -TERM $PID' TERM INT; npm run start:dev & PID=$!; wait $PID"]

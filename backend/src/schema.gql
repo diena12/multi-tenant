@@ -1,0 +1,16 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Agent {
+  id: String!
+  email: String!
+}
+
+type Query {
+  hello: String!
+}
+
+type Mutation {
+  registerAgent(email: String!, password: String!): Agent!
+}

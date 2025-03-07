@@ -1,17 +1,21 @@
 # 1. ベースイメージ
-FROM node:20.9.0-alpine
+FROM node:23-alpine
 
-# 2. 作業ディレクトリを作成
+# 3. 作業ディレクトリを作成
 WORKDIR /app
 
-# 3. package.json と package-lock.json をコピー
+# 4. package.json と package-lock.json をコピー（キャッシュを最大化）
 COPY package.json package-lock.json ./
 
-# 4. 依存関係をインストール（キャッシュを活かすため）
+# 5. 依存関係をインストール
 RUN npm install
 
-# 5. 残りのアプリのソースコードをコピー
+# 6. 残りのアプリのソースコードをコピー
 COPY . .
 
-# 6. Next.js の開発サーバーを実行
+# 7. Next.js のデフォルトポートを公開
+EXPOSE 3000
+
+# 9. Next.js の開発サーバーを起動
 CMD ["npm", "run", "dev"]
+
