@@ -4,9 +4,10 @@ import { ObjectType, Field } from '@nestjs/graphql';
 export class Agent {
   @Field()
   id: string;
-
   @Field()
   email: string;
+  @Field({ nullable: true })
+  token?: string;
 }
 
 @ObjectType()

@@ -7,4 +7,7 @@ export class Agent {
 
   @Field()
   email: string;
+
+  @Field({ nullable: true })
+  token?: string;
 }

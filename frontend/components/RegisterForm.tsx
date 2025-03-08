@@ -1,5 +1,7 @@
 "use client";
 
+import { useRegisterAgentMutation } from "@/src/graphql/generated";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface RegisterFormProps {
@@ -8,6 +10,7 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ role }: RegisterFormProps) {
   const isAdmin = role === "admin";
+  const router = useRouter();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -16,28 +19,32 @@ export default function RegisterForm({ role }: RegisterFormProps) {
   });
   const [message, setMessage] = useState("");
 
+  const [registerAgent, { data, error }] = useRegisterAgentMutation();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const endpoint = `/api/${role}/register`;
+    if (role === "agent") {
+      try {
+        const res = await registerAgent({
+          variables: { email: form.email, password: form.password },
+        });
 
-    const payload = isAdmin
-      ? form
-      : { username: form.username, email: form.email, password: form.password };
+        if (res.data?.registerAgent.token) {
+          localStorage.setItem("token", res.data.registerAgent.token);
+          localStorage.setItem("email", res.data.registerAgent.email);
 
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await res.json();
-    setMessage(
-      res.ok ? `${role} 登録成功！` : result.message || "登録に失敗しました"
-    );
+          router.push("/agent/pre-verify");
+        }
+      } catch (err) {
+        setMessage("登録に失敗しました");
+      }
+    } else {
+      setMessage("現在、GraphQL は agent のみ対応しています");
+    }
   };
 
   return (

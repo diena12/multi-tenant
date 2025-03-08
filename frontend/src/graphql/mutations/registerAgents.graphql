@@ -1,0 +1,7 @@
+mutation RegisterAgent($email: String!, $password: String!) {
+  registerAgent(email: $email, password: $password) {
+    id
+    email
+    token
+  }
+}

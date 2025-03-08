@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AgentRepository } from 'src/agent/agent.repository';
+import { MailService } from 'src/mail/mail.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -9,8 +10,11 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private mailService: MailService,
     private agentRepository: AgentRepository,
   ) {}
+
+  private verificationCodes = new Map<string, string>();
 
   async registerAgent(email: string, password: string) {
     const hashedPassword: string = await bcrypt.hash(password, 10);
@@ -18,7 +22,15 @@ export class AuthService {
     try {
       const agent = await this.agentRepository.create(email, hashedPassword);
 
-      return { id: agent.id, email: agent.email };
+      const verificationCode = Math.floor(
+        1000 + Math.random() * 9000,
+      ).toString();
+      this.verificationCodes.set(email, verificationCode);
+
+      await this.mailService.sendPreVerificationEmail(email, verificationCode);
+      const token = this.jwtService.sign({ email });
+
+      return { id: agent.id, email: agent.email, token: token };
     } catch (error) {
       throw new UnauthorizedException('登録に失敗しました');
     }

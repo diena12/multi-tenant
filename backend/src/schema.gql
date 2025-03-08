@@ -5,6 +5,7 @@
 type Agent {
   id: String!
   email: String!
+  token: String
 }
 
 type Query {
