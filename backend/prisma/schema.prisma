@@ -20,5 +20,7 @@ model Agent {
   password    String? @db.VarChar(100)  // 通常登録のパスワード（bcryptは60文字）
   provider    String? @db.VarChar(50)  // Google, GitHub など
   providerId  String? @unique @db.VarChar(100)  // ソーシャルログインID
+  verificationCode String? @db.VarChar(4)  // 4桁の確認コード
+  verificationExpires DateTime?  // 確認コードの有効期限
   createdAt   DateTime @default(now())
 }

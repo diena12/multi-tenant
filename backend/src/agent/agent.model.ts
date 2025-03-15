@@ -10,4 +10,10 @@ export class Agent {
 
   @Field({ nullable: true })
   token?: string;
+
+  @Field()
+  verificationCode: string;
+
+  @Field()
+  verificationExpires: Date;
 }

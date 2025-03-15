@@ -21,16 +21,39 @@ export class AuthService {
 
     try {
       const agent = await this.agentRepository.create(email, hashedPassword);
-
       const verificationCode = Math.floor(
         1000 + Math.random() * 9000,
       ).toString();
       this.verificationCodes.set(email, verificationCode);
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+      await this.agentRepository.saveVerificationCode(
+        agent,
+        verificationCode,
+        expiresAt,
+      );
 
       await this.mailService.sendPreVerificationEmail(email, verificationCode);
       const token = this.jwtService.sign({ email });
 
       return { id: agent.id, email: agent.email, token: token };
+    } catch (error) {
+      throw new UnauthorizedException('登録に失敗しました');
+    }
+  }
+
+  async verifyCodeAgent(email: string, code: string) {
+    try {
+      const agent = await this.agentRepository.findByEmail(email);
+
+      if (!agent) {
+        return false;
+      }
+      if (agent.verificationCode !== code) {
+        return false;
+      }
+
+      return true;
     } catch (error) {
       throw new UnauthorizedException('登録に失敗しました');
     }
