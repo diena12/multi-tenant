@@ -2,7 +2,7 @@ import { ArgsType, Field } from '@nestjs/graphql';
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
 @ArgsType()
-export class RegisterAgentDto {
+export class RegisterDto {
   @Field()
   @IsEmail({}, { message: '正しいメールアドレスを入力してください' })
   email: string;

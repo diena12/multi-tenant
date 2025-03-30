@@ -1,35 +1,22 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
+
+export enum Role {
+  AGENT = 'AGENT',
+  HELPER = 'HELPER',
+}
+
+registerEnumType(Role, {
+  name: 'Role',
+});
 
 @ObjectType()
-export class Agent {
+export class User {
   @Field()
   id: string;
   @Field()
   email: string;
   @Field({ nullable: true })
   token?: string;
-}
-
-@ObjectType()
-export class Helper {
-  @Field()
-  id: string;
-
-  @Field()
-  username: string;
-
-  @Field()
-  email: string;
-}
-
-@ObjectType()
-export class Admin {
-  @Field()
-  id: string;
-
-  @Field()
-  username: string;
-
-  @Field()
-  email: string;
+  @Field(() => Role)
+  role: Role;
 }

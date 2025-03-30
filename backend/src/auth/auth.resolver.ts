@@ -1,21 +1,32 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { Agent } from 'src/agent/agent.model';
-import { RegisterAgentDto } from './dto/register.dto';
+import { RegisterDto } from './dto/register.dto';
 import { VerifyCodeAgentDto } from './dto/verify-code.dto';
+import { Role } from '@prisma/client';
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  @Mutation(() => Agent)
-  async registerAgent(
-    @Args() RegisterAgentDto: RegisterAgentDto,
-  ): Promise<Agent> {
-    return this.authService.registerAgent(
-      RegisterAgentDto.email,
-      RegisterAgentDto.password,
+  @Mutation(() => String)
+  async registerHelper(@Args() RegisterDto: RegisterDto): Promise<string> {
+    const user = await this.authService.register(
+      RegisterDto.email,
+      RegisterDto.password,
+      Role.HELPER,
     );
+    return user.id;
+  }
+
+  @Mutation(() => String)
+  async registerAgent(@Args() RegisterDto: RegisterDto): Promise<string> {
+    const user = await this.authService.register(
+      RegisterDto.email,
+      RegisterDto.password,
+      Role.AGENT,
+    );
+    return user.id;
   }
 
   @Mutation(() => Agent)

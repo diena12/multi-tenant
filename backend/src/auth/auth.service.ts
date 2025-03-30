@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { AgentRepository } from 'src/agent/agent.repository';
 import { MailService } from 'src/mail/mail.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Role } from '@prisma/client';
+import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -11,24 +12,25 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private mailService: MailService,
-    private agentRepository: AgentRepository,
+    private userRepository: UserRepository,
   ) {}
 
   private verificationCodes = new Map<string, string>();
 
-  async registerAgent(email: string, password: string) {
-    const hashedPassword: string = await bcrypt.hash(password, 10);
+  async register(email: string, password: string, role: Role) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    this.verificationCodes.set(email, verificationCode);
+
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
     try {
-      const agent = await this.agentRepository.create(email, hashedPassword);
-      const verificationCode = Math.floor(
-        1000 + Math.random() * 9000,
-      ).toString();
-      this.verificationCodes.set(email, verificationCode);
-      const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-      await this.agentRepository.saveVerificationCode(
-        agent,
+      const user = await this.userRepository.create(
+        email,
+        hashedPassword,
+        role,
         verificationCode,
         expiresAt,
       );
@@ -36,13 +38,13 @@ export class AuthService {
       await this.mailService.sendPreVerificationEmail(email, verificationCode);
       const token = this.jwtService.sign({ email });
 
-      return { id: agent.id, email: agent.email, token: token };
+      return { id: user.id, email: user.email, role: user.role, token: token };
     } catch (error) {
       throw new UnauthorizedException('登録に失敗しました');
     }
   }
 
-  async verifyCodeAgent(email: string, code: string) {
+  async verifyCode(email: string, code: string) {
     try {
       const agent = await this.agentRepository.findByEmail(email);
 

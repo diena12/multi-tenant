@@ -13,14 +13,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Agent {
+model User {
   id          String  @id @default(uuid())
   username    String? @db.VarChar(50)  // ユーザー名は最大50文字
   email       String  @unique @db.VarChar(255)  // メールは最大255文字
   password    String? @db.VarChar(100)  // 通常登録のパスワード（bcryptは60文字）
-  provider    String? @db.VarChar(50)  // Google, GitHub など
-  providerId  String? @unique @db.VarChar(100)  // ソーシャルログインID
   verificationCode String? @db.VarChar(4)  // 4桁の確認コード
   verificationExpires DateTime?  // 確認コードの有効期限
   createdAt   DateTime @default(now())
+
+  posts Post[]
 }
+
+model Post {
+  id            String    @id @default(uuid())
+  title         String    @db.VarChar(255)
+  slug          String    @unique @db.VarChar(255)
+  content       String
+  summary       String?   @db.Text
+  coverImageUrl String?   @db.VarChar(2048)
+  published     Boolean   @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id])
+
+  categories    PostCategory[]
+  tags          PostTag[]
+}
+
+model Category {
+  id           String         @id @default(uuid())
+  name         String         @unique @db.VarChar(100)
+  slug         String         @unique @db.VarChar(100)
+
+  posts        PostCategory[]
+}
+
+model PostCategory {
+  postId     String
+  categoryId String
+
+  post       Post     @relation(fields: [postId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId])
+}
+
+model Tag {
+  id           String         @id @default(uuid())
+  name         String         @unique @db.VarChar(100)
+  slug         String         @unique @db.VarChar(100)
+
+  posts        PostTag[]
+}
+
+model PostTag {
+  postId     String
+  tagId      String
+
+  post       Post @relation(fields: [postId], references: [id])
+  tag        Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+}
+
+
+
