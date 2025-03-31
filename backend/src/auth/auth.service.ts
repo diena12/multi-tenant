@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/mail/mail.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Role } from '@prisma/client';
 import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
@@ -17,7 +16,7 @@ export class AuthService {
 
   private verificationCodes = new Map<string, string>();
 
-  async register(email: string, password: string, role: Role) {
+  async register(email: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -30,7 +29,6 @@ export class AuthService {
       const user = await this.userRepository.create(
         email,
         hashedPassword,
-        role,
         verificationCode,
         expiresAt,
       );
@@ -38,7 +36,7 @@ export class AuthService {
       await this.mailService.sendPreVerificationEmail(email, verificationCode);
       const token = this.jwtService.sign({ email });
 
-      return { id: user.id, email: user.email, role: user.role, token: token };
+      return { id: user.id, email: user.email, token: token };
     } catch (error) {
       throw new UnauthorizedException('登録に失敗しました');
     }
@@ -46,25 +44,28 @@ export class AuthService {
 
   async verifyCode(email: string, code: string) {
     try {
-      const agent = await this.agentRepository.findByEmail(email);
+      const user = await this.userRepository.findByEmail(email);
 
-      if (!agent) {
-        return false;
-      }
-      if (agent.verificationCode !== code) {
-        return false;
+      if (!user || user.verificationCode !== code) {
+        throw new UnauthorizedException('認証に失敗しました');
       }
 
-      return true;
+      // JWT payload に入れる情報
+      const payload = {
+        sub: user.id,
+        email: user.email,
+      };
+      const token = this.jwtService.sign(payload);
+      return { token };
     } catch (error) {
       throw new UnauthorizedException('登録に失敗しました');
     }
   }
 
   async loginAgent(email: string, password: string) {
-    const agent = await this.agentRepository.findByEmail(email);
+    const user = await this.userRepository.findByEmail(email);
 
-    if (!agent || !(await bcrypt.compare(password, agent.password))) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException(
         'メールアドレスまたはパスワードが間違っています',
       );
@@ -72,8 +73,8 @@ export class AuthService {
 
     // JWT トークンを発行
     const token = this.jwtService.sign({
-      agentId: agent.id,
-      email: agent.email,
+      agentId: user.id,
+      email: user.email,
     });
 
     return { token };

@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Agent {
+type User {
   id: String!
   email: String!
   token: String
@@ -13,5 +13,6 @@ type Query {
 }
 
 type Mutation {
-  registerAgent(email: String!, password: String!): Agent!
+  registerUser(email: String!, password: String!): User!
+  verifyCode(email: String!, code: String!): User!
 }

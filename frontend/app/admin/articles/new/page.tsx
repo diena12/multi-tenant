@@ -12,13 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import "easymde/dist/easymde.min.css";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
-
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
 
 export default function NewArticle() {
   return (

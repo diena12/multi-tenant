@@ -1,0 +1,5 @@
+mutation VerifyCode($email: String!, $code: String!) {
+  verifyCode(email: $email, code: $code) {
+    token
+  }
+}

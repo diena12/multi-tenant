@@ -1,39 +1,32 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { Agent } from 'src/agent/agent.model';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyCodeAgentDto } from './dto/verify-code.dto';
-import { Role } from '@prisma/client';
+import { User } from 'src/user/user.model';
 
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  @Mutation(() => String)
-  async registerHelper(@Args() RegisterDto: RegisterDto): Promise<string> {
+  @Query(() => String)
+  hello(): string {
+    return 'Hello world!';
+  }
+
+  @Mutation(() => User)
+  async registerUser(@Args() RegisterDto: RegisterDto): Promise<User> {
     const user = await this.authService.register(
       RegisterDto.email,
       RegisterDto.password,
-      Role.HELPER,
     );
-    return user.id;
+    return user;
   }
 
-  @Mutation(() => String)
-  async registerAgent(@Args() RegisterDto: RegisterDto): Promise<string> {
-    const user = await this.authService.register(
-      RegisterDto.email,
-      RegisterDto.password,
-      Role.AGENT,
-    );
-    return user.id;
-  }
-
-  @Mutation(() => Agent)
-  async verifyCodeAgent(
+  @Mutation(() => User)
+  async verifyCode(
     @Args() VerifyCodeAgentDto: VerifyCodeAgentDto,
-  ): Promise<Agent> {
-    return this.authService.verifyCodeAgent(
+  ): Promise<{ token: string }> {
+    return this.authService.verifyCode(
       VerifyCodeAgentDto.email,
       VerifyCodeAgentDto.code,
     );

@@ -17,22 +17,22 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
-export type Agent = {
-  __typename?: 'Agent';
-  email: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  token?: Maybe<Scalars['String']['output']>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  registerAgent: Agent;
+  registerUser: User;
+  verifyCode: User;
 };
 
 
-export type MutationRegisterAgentArgs = {
+export type MutationRegisterUserArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 export type Query = {
@@ -40,48 +40,96 @@ export type Query = {
   hello: Scalars['String']['output'];
 };
 
-export type RegisterAgentMutationVariables = Exact<{
+export type User = {
+  __typename?: 'User';
+  email: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  token?: Maybe<Scalars['String']['output']>;
+};
+
+export type RegisterUserMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
 }>;
 
 
-export type RegisterAgentMutation = { __typename?: 'Mutation', registerAgent: { __typename?: 'Agent', id: string, email: string, token?: string | null } };
+export type RegisterUserMutation = { __typename?: 'Mutation', registerUser: { __typename?: 'User', id: string, email: string } };
+
+export type VerifyCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+}>;
 
 
-export const RegisterAgentDocument = gql`
-    mutation RegisterAgent($email: String!, $password: String!) {
-  registerAgent(email: $email, password: $password) {
+export type VerifyCodeMutation = { __typename?: 'Mutation', verifyCode: { __typename?: 'User', token?: string | null } };
+
+
+export const RegisterUserDocument = gql`
+    mutation RegisterUser($email: String!, $password: String!) {
+  registerUser(email: $email, password: $password) {
     id
     email
-    token
   }
 }
     `;
-export type RegisterAgentMutationFn = Apollo.MutationFunction<RegisterAgentMutation, RegisterAgentMutationVariables>;
+export type RegisterUserMutationFn = Apollo.MutationFunction<RegisterUserMutation, RegisterUserMutationVariables>;
 
 /**
- * __useRegisterAgentMutation__
+ * __useRegisterUserMutation__
  *
- * To run a mutation, you first call `useRegisterAgentMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegisterAgentMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRegisterUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterUserMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [registerAgentMutation, { data, loading, error }] = useRegisterAgentMutation({
+ * const [registerUserMutation, { data, loading, error }] = useRegisterUserMutation({
  *   variables: {
  *      email: // value for 'email'
  *      password: // value for 'password'
  *   },
  * });
  */
-export function useRegisterAgentMutation(baseOptions?: Apollo.MutationHookOptions<RegisterAgentMutation, RegisterAgentMutationVariables>) {
+export function useRegisterUserMutation(baseOptions?: Apollo.MutationHookOptions<RegisterUserMutation, RegisterUserMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RegisterAgentMutation, RegisterAgentMutationVariables>(RegisterAgentDocument, options);
+        return Apollo.useMutation<RegisterUserMutation, RegisterUserMutationVariables>(RegisterUserDocument, options);
       }
-export type RegisterAgentMutationHookResult = ReturnType<typeof useRegisterAgentMutation>;
-export type RegisterAgentMutationResult = Apollo.MutationResult<RegisterAgentMutation>;
-export type RegisterAgentMutationOptions = Apollo.BaseMutationOptions<RegisterAgentMutation, RegisterAgentMutationVariables>;
+export type RegisterUserMutationHookResult = ReturnType<typeof useRegisterUserMutation>;
+export type RegisterUserMutationResult = Apollo.MutationResult<RegisterUserMutation>;
+export type RegisterUserMutationOptions = Apollo.BaseMutationOptions<RegisterUserMutation, RegisterUserMutationVariables>;
+export const VerifyCodeDocument = gql`
+    mutation VerifyCode($email: String!, $code: String!) {
+  verifyCode(email: $email, code: $code) {
+    token
+  }
+}
+    `;
+export type VerifyCodeMutationFn = Apollo.MutationFunction<VerifyCodeMutation, VerifyCodeMutationVariables>;
+
+/**
+ * __useVerifyCodeMutation__
+ *
+ * To run a mutation, you first call `useVerifyCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyCodeMutation, { data, loading, error }] = useVerifyCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useVerifyCodeMutation(baseOptions?: Apollo.MutationHookOptions<VerifyCodeMutation, VerifyCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VerifyCodeMutation, VerifyCodeMutationVariables>(VerifyCodeDocument, options);
+      }
+export type VerifyCodeMutationHookResult = ReturnType<typeof useVerifyCodeMutation>;
+export type VerifyCodeMutationResult = Apollo.MutationResult<VerifyCodeMutation>;
+export type VerifyCodeMutationOptions = Apollo.BaseMutationOptions<VerifyCodeMutation, VerifyCodeMutationVariables>;

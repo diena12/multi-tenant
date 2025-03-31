@@ -1,6 +1,0 @@
-mutation VerifyCodeAgent($email: String!, $code: String!) {
-  verifyCodeAgent(email: $email, code: $code) {
-    email
-    code
-  }
-}
