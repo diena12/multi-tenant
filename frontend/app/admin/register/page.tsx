@@ -1,5 +1,6 @@
 "use client";
 
+import { useRegisterUserMutation } from "@/src/graphql/generated";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,7 +16,7 @@ export default function AdminRegisterForm() {
   const router = useRouter();
   const [message, setMessage] = useState("");
 
-  const [registerAdmin] = useRegisterMutation(); // Admin用に変更
+  const [registerAdmin] = useRegisterUserMutation(); // Admin用に変更
 
   const {
     register,
@@ -31,7 +32,6 @@ export default function AdminRegisterForm() {
         variables: {
           email: data.email,
           password: data.password,
-          adminKey: data.adminKey,
         },
       });
 
