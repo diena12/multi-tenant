@@ -16,7 +16,7 @@ export default function AdminRegisterForm() {
   const router = useRouter();
   const [message, setMessage] = useState("");
 
-  const [registerAdmin] = useRegisterUserMutation(); // Admin用に変更
+  const [registerUser] = useRegisterUserMutation(); // Admin用に変更
 
   const {
     register,
@@ -26,22 +26,22 @@ export default function AdminRegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof registerSchema>) => {
     try {
-      const res = await registerAdmin({
+      const res = await registerUser({
         variables: {
           email: data.email,
           password: data.password,
         },
       });
 
-      if (res.data?.registerAdmin.token) {
-        localStorage.setItem("token", res.data.registerAdmin.token);
-        localStorage.setItem("email", res.data.registerAdmin.email);
+      if (res.data?.registerUser.token) {
+        localStorage.setItem("token", res.data.registerUser.token);
+        localStorage.setItem("email", res.data.registerUser.email);
 
-        router.push("/admin/dashboard");
+        router.push("/admin/pre-verify");
       }
-    } catch (err) {
+    } catch {
       setMessage("登録に失敗しました");
     }
   };

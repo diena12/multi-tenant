@@ -1,5 +1,6 @@
 "use client";
 
+import { useVerifyCodeMutation } from "@/src/graphql/generated";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -16,6 +17,7 @@ export default function PreVerifyPage() {
   const email = searchParamas.get("email") || "";
 
   const [message, setMessage] = useState("");
+  const [verifyCode] = useVerifyCodeMutation();
 
   // react-hook-form の設定
   const {
@@ -28,16 +30,14 @@ export default function PreVerifyPage() {
 
   const onSubmit = async (data: { code: string }) => {
     try {
-      console.log("確認コードを送信:", data.code, "メール:", email);
-
       // APIリクエスト（GraphQL の場合は useMutation で送信）
-      const response = await verifyCodeAgent({
+      await verifyCode({
         variables: { email, code: data.code },
       });
 
       // 成功時にリダイレクト
       router.push("/dashboard");
-    } catch (error) {
+    } catch {
       setMessage("確認に失敗しました。もう一度お試しください。");
     }
   };

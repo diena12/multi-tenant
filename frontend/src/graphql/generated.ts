@@ -53,7 +53,7 @@ export type RegisterUserMutationVariables = Exact<{
 }>;
 
 
-export type RegisterUserMutation = { __typename?: 'Mutation', registerUser: { __typename?: 'User', id: string, email: string } };
+export type RegisterUserMutation = { __typename?: 'Mutation', registerUser: { __typename?: 'User', id: string, email: string, token?: string | null } };
 
 export type VerifyCodeMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -69,6 +69,7 @@ export const RegisterUserDocument = gql`
   registerUser(email: $email, password: $password) {
     id
     email
+    token
   }
 }
     `;

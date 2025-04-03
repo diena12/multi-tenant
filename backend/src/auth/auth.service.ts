@@ -37,7 +37,7 @@ export class AuthService {
       const token = this.jwtService.sign({ email });
 
       return { id: user.id, email: user.email, token: token };
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('登録に失敗しました');
     }
   }
@@ -57,7 +57,7 @@ export class AuthService {
       };
       const token = this.jwtService.sign(payload);
       return { token };
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('登録に失敗しました');
     }
   }
