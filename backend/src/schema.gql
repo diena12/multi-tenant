@@ -15,4 +15,5 @@ type Query {
 type Mutation {
   registerUser(email: String!, password: String!): User!
   verifyCode(email: String!, code: String!): User!
+  loginUser(email: String!, password: String!): User!
 }

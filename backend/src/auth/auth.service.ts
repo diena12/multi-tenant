@@ -62,7 +62,7 @@ export class AuthService {
     }
   }
 
-  async loginAgent(email: string, password: string) {
+  async login(email: string, password: string) {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
