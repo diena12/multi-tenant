@@ -1,54 +1,154 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  HomeIcon,
+  DocumentTextIcon,
+  Cog6ToothIcon,
+  UserIcon,
+  BellIcon,
+  Bars3Icon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+
+const navigation = [
+  { name: "ダッシュボード", href: "/admin/dashboard", icon: HomeIcon },
+  { name: "記事管理", href: "/admin/articles", icon: DocumentTextIcon },
+  { name: "設定", href: "/admin/settings", icon: Cog6ToothIcon },
+  { name: "プロフィール", href: "/admin/profile", icon: UserIcon },
+];
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
-
-  const navigation = [
-    { name: "ダッシュボード", href: "/admin" },
-    { name: "記事管理", href: "/admin/articles" },
-    { name: "ユーザー管理", href: "/admin/users" },
-    { name: "設定", href: "/admin/settings" },
-  ];
+  const isProtectedPath =
+    pathname.startsWith("/admin/dashboard") ||
+    pathname.startsWith("/admin/articles") ||
+    pathname.startsWith("/admin/settings") ||
+    pathname.startsWith("/admin/profile");
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="fixed h-full w-64 border-r border-gray-200 bg-white">
-          <div className="flex h-16 items-center border-b border-gray-200 px-6">
-            <Link href="/admin" className="text-lg font-bold text-gray-900">
-              管理画面
-            </Link>
-          </div>
-          <nav className="space-y-1 px-3 py-4">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
+    <div className="min-h-screen bg-gray-100">
+      {/* モバイル用サイドバー */}
+      {isProtectedPath && (
+        <div
+          className={`fixed inset-0 z-40 lg:hidden ${
+            sidebarOpen ? "block" : "hidden"
+          }`}
+        >
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+          <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
+            <div className="flex h-16 items-center justify-between px-4">
+              <span className="text-xl font-bold text-gray-800">管理画面</span>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <nav className="flex-1 space-y-1 px-2 py-4">
+              {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center rounded-lg px-3 py-2 text-sm font-medium ${
-                    isActive
-                      ? "bg-primary text-white"
-                      : "text-gray-900 hover:bg-gray-50"
+                  className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
+                    pathname === item.href
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
+                  <item.icon
+                    className={`mr-3 h-6 w-6 flex-shrink-0 ${
+                      pathname === item.href
+                        ? "text-gray-500"
+                        : "text-gray-400 group-hover:text-gray-500"
+                    }`}
+                  />
                   {item.name}
                 </Link>
-              );
-            })}
-          </nav>
+              ))}
+            </nav>
+          </div>
         </div>
+      )}
 
-        {/* Main content */}
-        <div className="ml-64 flex-1 p-8">{children}</div>
+      {/* デスクトップ用サイドバー */}
+      {isProtectedPath && (
+        <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+          <div className="flex flex-1 flex-col bg-white">
+            <div className="flex h-16 items-center px-4">
+              <span className="text-xl font-bold text-gray-800">管理画面</span>
+            </div>
+            <nav className="flex-1 space-y-1 px-2 py-4">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
+                    pathname === item.href
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <item.icon
+                    className={`mr-3 h-6 w-6 flex-shrink-0 ${
+                      pathname === item.href
+                        ? "text-gray-500"
+                        : "text-gray-400 group-hover:text-gray-500"
+                    }`}
+                  />
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* メインコンテンツ */}
+      <div className={isProtectedPath ? "lg:pl-64" : ""}>
+        {isProtectedPath && (
+          <div className="sticky top-0 z-10 flex h-16 flex-shrink-0 bg-white shadow">
+            <button
+              type="button"
+              className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Bars3Icon className="h-6 w-6" />
+            </button>
+            <div className="flex flex-1 justify-between px-4">
+              <div className="flex flex-1"></div>
+              <div className="ml-4 flex items-center md:ml-6">
+                <button
+                  type="button"
+                  className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500"
+                >
+                  <BellIcon className="h-6 w-6" />
+                </button>
+                <div className="relative ml-3">
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium text-gray-700">
+                      管理者
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <main className="py-6">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

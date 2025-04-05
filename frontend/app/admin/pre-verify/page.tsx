@@ -2,8 +2,8 @@
 
 import { useVerifyCodeMutation } from "@/src/graphql/generated";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -13,13 +13,19 @@ const verifySchema = z.object({
 
 export default function PreVerifyPage() {
   const router = useRouter();
-  const searchParamas = useSearchParams();
-  const email = searchParamas.get("email") || "";
-
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [verifyCode] = useVerifyCodeMutation();
 
-  // react-hook-form の設定
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email");
+    if (!storedEmail) {
+      router.push("/admin/login");
+      return;
+    }
+    setEmail(storedEmail);
+  }, [router]);
+
   const {
     register,
     handleSubmit,
@@ -30,17 +36,26 @@ export default function PreVerifyPage() {
 
   const onSubmit = async (data: { code: string }) => {
     try {
-      // APIリクエスト（GraphQL の場合は useMutation で送信）
-      await verifyCode({
+      const result = await verifyCode({
         variables: { email, code: data.code },
       });
 
-      // 成功時にリダイレクト
-      router.push("/dashboard");
+      if (result.data?.verifyCode.token) {
+        // トークンをCookieに保存
+        document.cookie = `token=${result.data.verifyCode.token}; path=/; max-age=86400`; // 24時間有効
+        // 成功時にリダイレクト
+        router.push("/admin/dashboard");
+      } else {
+        setMessage("トークンの取得に失敗しました。もう一度お試しください。");
+      }
     } catch {
       setMessage("確認に失敗しました。もう一度お試しください。");
     }
   };
+
+  if (!email) {
+    return null; // メールアドレスが取得できるまで何も表示しない
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -60,7 +75,9 @@ export default function PreVerifyPage() {
           <button
             type="submit"
             className="bg-blue-500 text-white p-2 rounded w-full"
-          ></button>
+          >
+            確認
+          </button>
         </form>
       </div>
     </div>
