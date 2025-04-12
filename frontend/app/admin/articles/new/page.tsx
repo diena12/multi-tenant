@@ -13,8 +13,31 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
+import { useEffect, useState } from "react";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 export default function NewArticle() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("カテゴリーの取得に失敗しました:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div>
       <div className="mb-8">
@@ -49,14 +72,19 @@ export default function NewArticle() {
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label>カテゴリー</Label>
-              <Select>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="カテゴリーを選択" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="frontend">フロントエンド</SelectItem>
-                  <SelectItem value="backend">バックエンド</SelectItem>
-                  <SelectItem value="infrastructure">インフラ</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
